@@ -22,6 +22,9 @@ public class DAOException extends Exception{
         missatges.put(6502, "Error numèric o de valor durant l'execució del programa");
         missatges.put(12154, "No s'ha pogut resoldre el nom del servei de la base de dades Oracle o l'identificador de connexió");
         missatges.put(2292, "S'ha violat la restricció d'integritat -  s'ha trobat un registre fill");
+        missatges.put(2291, "Objecte null");
+        missatges.put(17002, "Error al executar el plSql");
+        missatges.put(2, "No s'ha pogut obtenir l'ID del peix inserit.");
     }
 
     //atribut
