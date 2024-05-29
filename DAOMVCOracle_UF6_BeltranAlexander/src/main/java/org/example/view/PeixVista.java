@@ -137,7 +137,7 @@ public JTable getTaulaHab() {
         this.setContentPane(panel1);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
-        this.setVisible(true); //todo Ficar a false i sol mostrar si es connecta a la BD
+        this.setVisible(false);
         panel1.setLayout(new BorderLayout());
 
         panel1.add(pestanyes, BorderLayout.CENTER);
