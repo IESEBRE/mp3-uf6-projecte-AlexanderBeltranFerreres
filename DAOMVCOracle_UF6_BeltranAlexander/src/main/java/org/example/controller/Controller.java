@@ -104,36 +104,14 @@ public class Controller implements PropertyChangeListener {
         this.view = view;
         this.dadesPeix = dadesPeix;
 
-        // Inicialitzar la connexió a la base de dades i crear la taula
-        try{
+        try {
             dadesPeix.crearTaula();
-        }catch (DAOException e) {
-            setExcepcio(new LaMeuaExcepcio(1));
+
+            view.setVisible(true);
+        } catch (DAOException e) {
+            JOptionPane.showMessageDialog(null, "No s'ha pogut connectar a la base de dades", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
-
-
-//        //Executar plsql
-//        try {
-//            String plsql = "Your PL/SQL script here";
-//            dadesPeix.executarPLSQL(plsql);
-//        } catch (DAOException e) {
-//            setExcepcio(new LaMeuaExcepcio(1));
-//            e.printStackTrace();
-//        }
-
-//        //Carrear dades de la BD
-//        try {
-//            model.setModelPeix(dadesPeix.getAll());
-//        } catch (DAOException e) {
-//            setExcepcio(new LaMeuaExcepcio(1));
-//        }
-
-//        // Carregar les dades del fitxer
-//        try {
-//            //Fitxers.carregarDades(model.getModelPeix(), model.getModelHab());
-//        } catch (Exception e) {
-//            setExcepcio(new LaMeuaExcepcio(3));
-//        }
         //Mètode per lligar la vista i el model
         lligarVistaModel();
 
@@ -319,9 +297,8 @@ public class Controller implements PropertyChangeListener {
                             // Esborrem el peix de la base de dades
                             dadesPeix.delete(peix);
                         } catch (DAOException ex) {
-                            // Maneixem l'excepció si hi ha algun problema amb la base de dades
-                            ex.printStackTrace(); // Opcional: imprimeix l'excepció
-                            // Aquí pots mostrar un missatge d'error a l'usuari si ho desitges
+
+                            System.out.println("Error al borrar el peix de la BD: " + ex.getMessage());
                         }
                         modelPeix.removeRow(filaSel);
 
@@ -438,7 +415,7 @@ public class Controller implements PropertyChangeListener {
                                     try {
                                         // Obtenim el peix existent
                                         Peix peixExist = (Peix) modelPeix.getValueAt(filaSel, 5);
-                                        // Creem un nou peix amb les dades modificades i l'ID existent
+                                        // Creem un nou peix amb les dades modificades i l'ID que ja existeix a la taula
                                         Peix peixNou = new Peix(
                                                 peixExist.getId(),
                                                 campNomCientific.getText(),
@@ -449,14 +426,14 @@ public class Controller implements PropertyChangeListener {
                                                 new TreeSet<Peix.Habitat>()
                                         );
 
-                                        // Actualitzem el peix a la BD
+                                        // Actualitzar el peix a la BD
                                         new PeixDAOJDBCOracleImpl().update(peixNou);
 
-                                        // Actualitzem la fila a la taula
+                                        // Actualitzar la fila a la taula
                                         modelPeix.removeRow(filaSel);
                                         modelPeix.insertRow(filaSel, new Object[]{campNomCientific.getText(), campNomComu.getText(), mida, numEx, aiguaSalada.isSelected(), peixNou});
 
-                                        // Neteja els camps del formulari
+                                        //Ficar en default els camps del formulari
                                         campNomCientific.setText("");
                                         campNomComu.setText("");
                                         campMida.setText("");

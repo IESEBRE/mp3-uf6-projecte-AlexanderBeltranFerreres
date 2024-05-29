@@ -25,6 +25,8 @@ public class DAOException extends Exception{
         missatges.put(2291, "Objecte null");
         missatges.put(17002, "Error al executar el plSql");
         missatges.put(2, "No s'ha pogut obtenir l'ID del peix inserit.");
+        missatges.put(3, "\"Les dades de connexió a la base de dades són incorrectes.\"");
+        missatges.put(4, "No es troba el fitxer prperties");
     }
 
     //atribut
