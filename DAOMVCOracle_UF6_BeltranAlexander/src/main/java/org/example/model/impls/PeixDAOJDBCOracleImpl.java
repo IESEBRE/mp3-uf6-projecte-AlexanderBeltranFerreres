@@ -1,21 +1,15 @@
 package org.example.model.impls;
 
-import org.example.app.LaMeuaExcepcio;
 import org.example.model.daos.DAO;
 import org.example.model.entities.Peix;
 import org.example.model.exceptions.DAOException;
 
-import javax.print.DocFlavor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.TreeSet;
 
 import static java.lang.System.getProperty;
 
@@ -35,17 +29,28 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
                 "                aigua_salada CHAR(1)\n" +
                 "            )";
 
+        String trigger = "CREATE OR REPLACE TRIGGER peixos_gen_id\n" +
+                "BEFORE INSERT ON peixos\n" +
+                "FOR EACH ROW\n" +
+                "BEGIN\n" +
+                "    IF :new.id IS NULL THEN\n" +
+                "        SELECT NVL(MAX(id), 0) + 1 INTO :new.id FROM peixos;\n" +
+                "    END IF;\n" +
+                "END;\n" +
+                "/\n";
+
         try (Connection con = DriverManager.getConnection(
 
-                Config.getProperty("db.url"),
-                Config.getProperty("db.user"),
-                Config.getProperty("db.password")
+                Database.getProperty("db.url"),
+                Database.getProperty("db.user"),
+                Database.getProperty("db.password")
         );
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(taulaExisteix);
         ) {
             if (!rs.next() || rs.getInt(1) == 0) {
                 st.execute(consultaCrearTaula);
+                st.execute(trigger);
             }
         } catch (SQLException throwables) {
             throw new DAOException(1);
@@ -62,7 +67,7 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
 //        try (Connection con = DriverManager.getConnection(jdbcUrl, username, password);
 //             Statement stmt = con.createStatement()) {
 //
-//            // Read PL/SQL file content
+//            // Llegir el contingut fitxer PL/SQL
 //            String plsqlContent = new String(Files.readAllBytes(Paths.get(plsql)), StandardCharsets.UTF_8);
 //
 //            // Executar la comanda PL/SQL
@@ -74,7 +79,7 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
 //            throw new DAOException(9);
 //        } catch (IOException e) {
 //            e.printStackTrace();
-//            throw new DAOException(10); // Assuming 10 is the code for file read error
+//            throw new DAOException(10);
 //        }
 //    }
 
@@ -94,9 +99,9 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
         try {
 
             con = DriverManager.getConnection(
-                    Config.getProperty("db.url"),
-                    Config.getProperty("db.user"),
-                    Config.getProperty("db.password")
+                    Database.getProperty("db.url"),
+                    Database.getProperty("db.user"),
+                    Database.getProperty("db.password")
             );
 //¡            st = con.prepareStatement("SELECT * FROM estudiant WHERE id=?;");
             st = con.createStatement(); //statement per executar la consulta
@@ -135,9 +140,9 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
 
         // Accés a la BD usant l'API JDBC
         try (Connection con = DriverManager.getConnection(
-                Config.getProperty("db.url"),
-                Config.getProperty("db.user"),
-                Config.getProperty("db.password")
+                Database.getProperty("db.url"),
+                Database.getProperty("db.user"),
+                Database.getProperty("db.password")
         );
              PreparedStatement st = con.prepareStatement("SELECT * FROM PEIXOS");
              ResultSet rs = st.executeQuery();
@@ -182,9 +187,9 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
 
         Connection con = null;
         try { con = DriverManager.getConnection(
-                Config.getProperty("db.url"),
-                Config.getProperty("db.user"),
-                Config.getProperty("db.password")
+                Database.getProperty("db.url"),
+                Database.getProperty("db.user"),
+                Database.getProperty("db.password")
             );
         if (con == null) {
             throw new DAOException(0);
@@ -225,9 +230,9 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
         try {
             // Estableix la connexió amb la base de dades
             con = DriverManager.getConnection(
-                    Config.getProperty("db.url"),
-                    Config.getProperty("db.user"),
-                    Config.getProperty("db.password")
+                    Database.getProperty("db.url"),
+                    Database.getProperty("db.user"),
+                    Database.getProperty("db.password")
             );
 
             // Verifica si la connexió és nul·la
@@ -280,9 +285,9 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
         try {
             // Estableix la connexió amb la base de dades
             con = DriverManager.getConnection(
-                    Config.getProperty("db.url"),
-                    Config.getProperty("db.user"),
-                    Config.getProperty("db.password")
+                    Database.getProperty("db.url"),
+                    Database.getProperty("db.user"),
+                    Database.getProperty("db.password")
             );
 
             // Verifica si la connexió és nul·la
@@ -323,13 +328,13 @@ public class PeixDAOJDBCOracleImpl implements DAO<Peix> {
     }
 
     //Metode per accedir al properties
-    public static class Config {
+    public static class Database {
         private static Properties properties = new Properties();
 
         static {
-            try (InputStream input = Config.class.getClassLoader().getResourceAsStream("config.properties")) {
+            try (InputStream input = Database.class.getClassLoader().getResourceAsStream("database.properties")) {
                 if (input == null) {
-                    System.out.println("no es troba config.properties");
+                    System.out.println("no es troba database.properties");
                 }
                 properties.load(input);
             } catch (IOException ex) {

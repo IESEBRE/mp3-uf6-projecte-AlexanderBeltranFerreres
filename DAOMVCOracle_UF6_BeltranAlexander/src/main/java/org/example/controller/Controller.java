@@ -116,7 +116,7 @@ public class Controller implements PropertyChangeListener {
         lligarVistaModel();
 
         //Per a que el controller reaccioni davant de canvis de les priopietats lligades
-        canvis.addPropertyChangeListener(this);
+//        canvis.addPropertyChangeListener(this);
 
     }
 
